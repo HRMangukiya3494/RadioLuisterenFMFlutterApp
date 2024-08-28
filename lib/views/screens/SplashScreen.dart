@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:radio_app/views/routes/AppRoutes.dart';
 import 'package:radio_app/views/utils/ImageUtils.dart';
 
 class SplashScreen extends StatelessWidget {
@@ -6,6 +8,10 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Future.delayed(Duration(seconds: 3), () {
+      Get.offAllNamed(AppRoutes.GETSTARTED);
+    });
+
     return Scaffold(
       body: Stack(
         children: [
