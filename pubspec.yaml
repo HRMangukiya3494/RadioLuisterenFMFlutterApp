@@ -10,7 +10,10 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  get: 
+  get:
+  http:
+  just_audio:
+  xml:
 
 dev_dependencies:
   flutter_test:
