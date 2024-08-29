@@ -10,6 +10,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double h = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -109,6 +110,35 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
+      bottomNavigationBar: Obx(() {
+        // Only show the bottom bar after the first play
+        if (controller.firstPlay.value) {
+          return BottomAppBar(
+            color: Colors.white,
+            elevation: 8.0,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    iconSize: 48.0,
+                    icon: Icon(
+                      controller.isPlaying.value ? Icons.pause_circle_filled : Icons.play_circle_filled,
+                      color: Colors.blue,
+                    ),
+                    onPressed: () {
+                      controller.playPause(controller.currentStreamUrl.value);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        } else {
+          return SizedBox.shrink(); // Empty space if no stream is selected or playing
+        }
+      }),
     );
   }
 }

@@ -1,9 +1,8 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
+import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart' as xml;
 
 class HomeController extends GetxController {
@@ -12,6 +11,7 @@ class HomeController extends GetxController {
   final AudioPlayer audioPlayer = AudioPlayer();
   var currentStreamUrl = ''.obs;
   var isPlaying = false.obs;
+  var firstPlay = false.obs; // Tracks if play has been clicked for the first time
 
   @override
   void onInit() {
@@ -22,8 +22,7 @@ class HomeController extends GetxController {
   void fetchStations() async {
     try {
       isLoading(true);
-      final response = await http
-          .get(Uri.parse('https://www.radioluisteren.fm/streams.rss'));
+      final response = await http.get(Uri.parse('https://www.radioluisteren.fm/streams.rss'));
       if (response.statusCode == 200) {
         final document = xml.XmlDocument.parse(response.body);
         final items = document.findAllElements('item');
@@ -49,9 +48,24 @@ class HomeController extends GetxController {
   }
 
   void playPause(String streamUrl) async {
-    log(streamUrl);
     try {
-      if (currentStreamUrl.value == streamUrl) {
+      if (currentStreamUrl.value.isEmpty || currentStreamUrl.value != streamUrl) {
+        // Stop the previous stream if it's different
+        await audioPlayer.stop();
+        isPlaying(false);
+
+        // Load and play the new stream
+        await audioPlayer.setUrl(streamUrl);
+        await audioPlayer.play();
+        isPlaying(true);
+        currentStreamUrl.value = streamUrl;
+
+        // Set firstPlay to true after the first play
+        firstPlay(true);
+
+        log('Playback started successfully for: $streamUrl');
+      } else {
+        // Toggle play/pause for the same stream
         if (isPlaying.value) {
           await audioPlayer.pause();
           isPlaying(false);
@@ -59,21 +73,11 @@ class HomeController extends GetxController {
           await audioPlayer.play();
           isPlaying(true);
         }
-      } else {
-        // Load and play the new stream
-        await audioPlayer.setUrl(streamUrl);
-        await audioPlayer.play();
-        isPlaying(true);
-        currentStreamUrl.value = streamUrl;
-        log('Playback started successfully for: $streamUrl');
       }
     } catch (e) {
       log('Error playing stream: $e');
-      Get.snackbar('Playback Error',
-          'Could not play the stream. Please try again later.',
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white);
+      Get.snackbar('Playback Error', 'Could not play the stream. Please try again later.',
+          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
     }
   }
 
