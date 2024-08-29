@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
+    <!-- Allow cleartext traffic by default -->
+    <base-config cleartextTrafficPermitted="true">
+    </base-config>
+
+    <!-- Block cleartext traffic for specific domains -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="false">foo.bar</domain>
+    </domain-config>
+
+    <!-- Allow cleartext traffic for specific domains -->
     <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">radioluisteren.fm</domain>
+        <domain includeSubdomains="true">example.com</domain>
+        <domain includeSubdomains="true">www.radioluisteren.fm</domain>
+        <domain includeSubdomains="true">stream.freezfm.nl</domain>
+        <domain includeSubdomains="true">playerservices.streamtheworld.com</domain>
     </domain-config>
 </network-security-config>

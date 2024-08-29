@@ -1,8 +1,9 @@
 import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:http/http.dart' as http;
+import 'package:just_audio/just_audio.dart';
 import 'package:xml/xml.dart' as xml;
 
 class HomeController extends GetxController {
@@ -21,7 +22,8 @@ class HomeController extends GetxController {
   void fetchStations() async {
     try {
       isLoading(true);
-      final response = await http.get(Uri.parse('https://www.radioluisteren.fm/streams.rss'));
+      final response = await http
+          .get(Uri.parse('https://www.radioluisteren.fm/streams.rss'));
       if (response.statusCode == 200) {
         final document = xml.XmlDocument.parse(response.body);
         final items = document.findAllElements('item');
@@ -47,6 +49,7 @@ class HomeController extends GetxController {
   }
 
   void playPause(String streamUrl) async {
+    log(streamUrl);
     try {
       if (currentStreamUrl.value == streamUrl) {
         if (isPlaying.value) {
@@ -66,14 +69,13 @@ class HomeController extends GetxController {
       }
     } catch (e) {
       log('Error playing stream: $e');
-      Get.snackbar('Playback Error', 'Could not play the stream. Please try again later.',
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar('Playback Error',
+          'Could not play the stream. Please try again later.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white);
     }
   }
-
-
-
-
 
   @override
   void dispose() {

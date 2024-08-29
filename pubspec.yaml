@@ -12,7 +12,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   get:
   http:
-  just_audio:
+  just_audio: ^0.9.40
   xml:
 
 dev_dependencies:
