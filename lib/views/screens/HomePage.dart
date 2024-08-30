@@ -1,4 +1,5 @@
 import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:radio_app/controller/HomeController.dart';
@@ -62,83 +63,157 @@ class HomePage extends StatelessWidget {
                         ),
                       );
                     }
-                    return GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3, // Number of images per row
-                        childAspectRatio: 1, // Aspect ratio for square images
-                        mainAxisSpacing: 8.0, // Space between rows
-                        crossAxisSpacing: 8.0, // Space between columns
-                      ),
-                      itemCount: controller.stations.length,
-                      itemBuilder: (context, index) {
-                        final station = controller.stations[index];
-                        final imageUrl = station['image'] ?? '';
-                        final streamingUrl = station['streaming_url'] ?? '';
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        double itemHeight = (constraints.maxWidth - 16.0) / 3;
+                        double itemWidth = itemHeight * 1.5;
 
-                        return GestureDetector(
-                          onTap: () {
-                            if (streamingUrl.isNotEmpty) {
-                              controller.playPause(streamingUrl);
-                            } else {
-                              log('No streaming URL provided for this station.');
-                            }
-                          },
-                          child: Container(
-                            margin: EdgeInsets.all(8.0), // Margin around each image
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: NetworkImage(imageUrl),
-                                fit: BoxFit.cover, // Ensures the image covers the entire container
-                              ),
-                              borderRadius: BorderRadius.circular(12.0), // Rounded corners
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black26, // Shadow color
-                                  blurRadius: 8.0, // Softness of the shadow
-                                  offset: Offset(2, 4), // Position of the shadow
-                                ),
-                              ],
-                            ),
+                        return GridView.builder(
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            childAspectRatio: itemWidth / itemHeight,
+                            mainAxisSpacing: 8.0,
+                            crossAxisSpacing: 8.0,
                           ),
+                          itemCount: controller.stations.length,
+                          itemBuilder: (context, index) {
+                            final station = controller.stations[index];
+                            final imageUrl = station['image'] ?? '';
+                            final streamingUrl = station['streaming_url'] ?? '';
+
+                            return GestureDetector(
+                              onTap: () {
+                                if (streamingUrl.isNotEmpty) {
+                                  controller.playPause(streamingUrl, index);
+                                } else {
+                                  log('No streaming URL provided for this station.');
+                                }
+                              },
+                              child: Container(
+                                margin: EdgeInsets.all(8.0),
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: NetworkImage(imageUrl),
+                                    fit: BoxFit.cover,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black26,
+                                      blurRadius: 8.0,
+                                      offset: Offset(2, 4),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
                         );
                       },
                     );
                   }),
                 ),
+                Obx(() {
+                  if (controller.firstPlay.value) {
+                    return BottomAppBar(
+                      color: Colors.white.withOpacity(0.4),
+                      elevation: 8.0,
+                      child: Padding(
+                        padding: EdgeInsets.all(
+                          h * 0.01,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            if (controller.currentStation['image'] != null)
+                              Container(
+                                height: h * 0.06,
+                                width: h * 0.08,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.white,width: h * 0.002,),
+                                  image: DecorationImage(
+                                    image: NetworkImage(
+                                      controller.currentStation['image']!,
+                                    ),
+                                    fit: BoxFit.fitWidth,
+                                  ),
+                                ),
+                              ),
+                            if (controller.currentStation['title'] != null)
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: Text(
+                                    controller.currentStation['title']!,
+                                    style: TextStyle(
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                            InkWell(
+                              onTap: controller.previousStation,
+                              child: Icon(
+                                Icons.skip_previous,
+                                color: Colors.white,
+                                size: h * 0.034,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                controller.playPause(
+                                    controller.currentStreamUrl.value,
+                                    controller.currentIndex.value);
+                              },
+                              child: Container(
+                                height: h * 0.08,
+                                width: h * 0.08,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xFFEB458C),
+                                      Color(0xFF8648F3)
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Icon(
+                                    controller.isPlaying.value
+                                        ? Icons.pause
+                                        : Icons.play_arrow,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            InkWell(
+                              onTap: controller.nextStation,
+                              child: Icon(
+                                Icons.skip_next,
+                                color: Colors.white,
+                                size: h * 0.034,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  } else {
+                    return SizedBox.shrink();
+                  }
+                }),
               ],
             ),
           ),
         ],
       ),
-      bottomNavigationBar: Obx(() {
-        // Only show the bottom bar after the first play
-        if (controller.firstPlay.value) {
-          return BottomAppBar(
-            color: Colors.white,
-            elevation: 8.0,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    iconSize: 48.0,
-                    icon: Icon(
-                      controller.isPlaying.value ? Icons.pause_circle_filled : Icons.play_circle_filled,
-                      color: Colors.blue,
-                    ),
-                    onPressed: () {
-                      controller.playPause(controller.currentStreamUrl.value);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        } else {
-          return SizedBox.shrink(); // Empty space if no stream is selected or playing
-        }
-      }),
     );
   }
 }

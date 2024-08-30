@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart' as xml;
 
@@ -10,8 +10,10 @@ class HomeController extends GetxController {
   var stations = <Map<String, String>>[].obs;
   final AudioPlayer audioPlayer = AudioPlayer();
   var currentStreamUrl = ''.obs;
+  var currentStation = <String, String>{}.obs;
+  var currentIndex = 0.obs;
   var isPlaying = false.obs;
-  var firstPlay = false.obs; // Tracks if play has been clicked for the first time
+  var firstPlay = false.obs;
 
   @override
   void onInit() {
@@ -47,38 +49,52 @@ class HomeController extends GetxController {
     }
   }
 
-  void playPause(String streamUrl) async {
+  void playPause(String streamUrl, int index) async {
     try {
       if (currentStreamUrl.value.isEmpty || currentStreamUrl.value != streamUrl) {
-        // Stop the previous stream if it's different
         await audioPlayer.stop();
         isPlaying(false);
 
-        // Load and play the new stream
-        await audioPlayer.setUrl(streamUrl);
-        await audioPlayer.play();
+        await audioPlayer.setSourceUrl(streamUrl);
+        await audioPlayer.resume();
         isPlaying(true);
         currentStreamUrl.value = streamUrl;
+        currentStation.value = stations[index];
+        currentIndex.value = index;
 
-        // Set firstPlay to true after the first play
         firstPlay(true);
 
         log('Playback started successfully for: $streamUrl');
       } else {
-        // Toggle play/pause for the same stream
         if (isPlaying.value) {
           await audioPlayer.pause();
           isPlaying(false);
         } else {
-          await audioPlayer.play();
+          await audioPlayer.resume();
           isPlaying(true);
         }
       }
     } catch (e) {
       log('Error playing stream: $e');
-      Get.snackbar('Playback Error', 'Could not play the stream. Please try again later.',
+      Get.snackbar('Playback Issue', 'Could not play the stream. Please try again later.',
           snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
     }
+  }
+
+  void nextStation() {
+    int nextIndex = currentIndex.value + 1;
+    if (nextIndex >= stations.length) {
+      nextIndex = 0;
+    }
+    playPause(stations[nextIndex]['streaming_url']!, nextIndex);
+  }
+
+  void previousStation() {
+    int prevIndex = currentIndex.value - 1;
+    if (prevIndex < 0) {
+      prevIndex = stations.length - 1;
+    }
+    playPause(stations[prevIndex]['streaming_url']!, prevIndex);
   }
 
   @override

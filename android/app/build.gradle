@@ -45,8 +45,7 @@ flutter {
 
 dependencies {
     def exoplayer_version = "...specify-version-here...."
-    implementation "com.google.android.exoplayer:exoplayer-core:$exoplayer_version"
-    implementation "com.google.android.exoplayer:exoplayer-dash:$exoplayer_version"
-    implementation "com.google.android.exoplayer:exoplayer-hls:$exoplayer_version"
-    implementation "com.google.android.exoplayer:exoplayer-smoothstreaming:$exoplayer_version"
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.19.1'
+    implementation 'com.google.android.exoplayer:exoplayer-dash:2.19.1'
+    implementation 'com.google.android.exoplayer:exoplayer-hls:2.19.1'
 }
