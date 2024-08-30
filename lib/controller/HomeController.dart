@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,6 +15,12 @@ class HomeController extends GetxController {
   var currentIndex = 0.obs;
   var isPlaying = false.obs;
   var firstPlay = false.obs;
+  var isMuted = false.obs;
+  var playbackPosition = 0.0.obs;
+  var duration = 0.0.obs;
+
+  StreamSubscription? _positionSubscription;
+  StreamSubscription? _durationSubscription;
 
   @override
   void onInit() {
@@ -65,6 +72,7 @@ class HomeController extends GetxController {
         firstPlay(true);
 
         log('Playback started successfully for: $streamUrl');
+
       } else {
         if (isPlaying.value) {
           await audioPlayer.pause();
@@ -81,24 +89,20 @@ class HomeController extends GetxController {
     }
   }
 
-  void nextStation() {
-    int nextIndex = currentIndex.value + 1;
-    if (nextIndex >= stations.length) {
-      nextIndex = 0;
+  void toggleMute() {
+    if (isMuted.value) {
+      audioPlayer.setVolume(1.0);
+      isMuted(false);
+    } else {
+      audioPlayer.setVolume(0.0);
+      isMuted(true);
     }
-    playPause(stations[nextIndex]['streaming_url']!, nextIndex);
-  }
-
-  void previousStation() {
-    int prevIndex = currentIndex.value - 1;
-    if (prevIndex < 0) {
-      prevIndex = stations.length - 1;
-    }
-    playPause(stations[prevIndex]['streaming_url']!, prevIndex);
   }
 
   @override
   void dispose() {
+    _positionSubscription?.cancel();
+    _durationSubscription?.cancel();
     audioPlayer.dispose();
     super.dispose();
   }

@@ -30,9 +30,7 @@ class HomePage extends StatelessWidget {
           SafeArea(
             child: Column(
               children: [
-                SizedBox(
-                  height: h * 0.01,
-                ),
+                SizedBox(height: h * 0.01),
                 Container(
                   height: h * 0.04,
                   width: double.infinity,
@@ -45,23 +43,14 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: h * 0.01,
-                ),
+                SizedBox(height: h * 0.01),
                 Expanded(
                   child: Obx(() {
                     if (controller.isLoading.value) {
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
+                      return Center(child: CircularProgressIndicator());
                     }
                     if (controller.stations.isEmpty) {
-                      return Center(
-                        child: Text(
-                          'No stations available',
-                          style: TextStyle(),
-                        ),
-                      );
+                      return Center(child: Text('No stations available'));
                     }
                     return LayoutBuilder(
                       builder: (context, constraints) {
@@ -117,26 +106,28 @@ class HomePage extends StatelessWidget {
                 Obx(() {
                   if (controller.firstPlay.value) {
                     return BottomAppBar(
+                      height: h * 0.1,
                       color: Colors.white.withOpacity(0.4),
                       elevation: 8.0,
                       child: Padding(
-                        padding: EdgeInsets.all(
-                          h * 0.01,
-                        ),
+                        padding: EdgeInsets.all(h * 0.01),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            // Container for the image and title
                             if (controller.currentStation['image'] != null)
                               Container(
                                 height: h * 0.06,
-                                width: h * 0.08,
+                                width: h * 0.06,
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.white,width: h * 0.002,),
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: h * 0.002,
+                                  ),
                                   image: DecorationImage(
                                     image: NetworkImage(
                                       controller.currentStation['image']!,
                                     ),
-                                    fit: BoxFit.fitWidth,
+                                    fit: BoxFit.cover,
                                   ),
                                 ),
                               ),
@@ -151,55 +142,70 @@ class HomePage extends StatelessWidget {
                                       fontSize: 16.0,
                                       fontWeight: FontWeight.bold,
                                     ),
-                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ),
-                            InkWell(
-                              onTap: controller.previousStation,
-                              child: Icon(
-                                Icons.skip_previous,
-                                color: Colors.white,
-                                size: h * 0.034,
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                controller.playPause(
-                                    controller.currentStreamUrl.value,
-                                    controller.currentIndex.value);
-                              },
-                              child: Container(
-                                height: h * 0.08,
-                                width: h * 0.08,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Color(0xFFEB458C),
-                                      Color(0xFF8648F3)
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    controller.playPause(
+                                        controller.currentStreamUrl.value,
+                                        controller.currentIndex.value);
+                                  },
+                                  child: Container(
+                                    height: h * 0.06,
+                                    width: h * 0.06,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Color(0xFFEB458C),
+                                          Color(0xFF8648F3),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Icon(
+                                        controller.isPlaying.value
+                                            ? Icons.pause
+                                            : Icons.play_arrow,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                child: Center(
-                                  child: Icon(
-                                    controller.isPlaying.value
-                                        ? Icons.pause
-                                        : Icons.play_arrow,
-                                    color: Colors.white,
+                                GestureDetector(
+                                  onTap: () {
+                                    controller.toggleMute();
+                                  },
+                                  child: Container(
+                                    height: h * 0.08,
+                                    width: h * 0.08,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Color(0xFFEB458C),
+                                          Color(0xFF8648F3),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Icon(
+                                        controller.isMuted.value
+                                            ? Icons.volume_off
+                                            : Icons.volume_up,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ),
-                            InkWell(
-                              onTap: controller.nextStation,
-                              child: Icon(
-                                Icons.skip_next,
-                                color: Colors.white,
-                                size: h * 0.034,
-                              ),
+                              ],
                             ),
                           ],
                         ),

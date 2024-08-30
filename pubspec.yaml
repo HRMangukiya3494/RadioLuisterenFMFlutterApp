@@ -13,6 +13,7 @@ dependencies:
   get:
   http:
   audioplayers: ^6.1.0
+  cached_network_image:
   xml:
 
 dev_dependencies:
