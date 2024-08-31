@@ -1,7 +1,7 @@
 name: radio_app
 description: "A New Radio App"
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.2
 
 environment:
   sdk: ^3.5.0
@@ -13,6 +13,7 @@ dependencies:
   get:
   http:
   audioplayers: ^6.1.0
+  flutter_volume_controller: ^1.3.2
   cached_network_image:
   xml:
 

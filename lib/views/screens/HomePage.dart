@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:radio_app/controller/HomeController.dart';
@@ -59,7 +58,7 @@ class HomePage extends StatelessWidget {
 
                         return GridView.builder(
                           gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
+                          SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 3,
                             childAspectRatio: itemWidth / itemHeight,
                             mainAxisSpacing: 8.0,
@@ -196,15 +195,33 @@ class HomePage extends StatelessWidget {
                                       ),
                                     ),
                                     child: Center(
-                                      child: Icon(
-                                        controller.isMuted.value
-                                            ? Icons.volume_off
-                                            : Icons.volume_up,
-                                        color: Colors.white,
-                                      ),
+                                      child: Obx(() {
+                                        return Icon(
+                                          controller.volume.value == 0 || controller.isMuted.value
+                                              ? Icons.volume_off
+                                              : Icons.volume_up,
+                                          color: Colors.white,
+                                        );
+                                      }),
                                     ),
                                   ),
                                 ),
+                                Obx(() {
+                                  return Container(
+                                    width: h * 0.2, // Adjust width for responsiveness
+                                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                                    child: Slider(
+                                      value: controller.volume.value, // Bind slider to volume
+                                      min: 0,
+                                      max: 1,
+                                      onChanged: (value) {
+                                        controller.setVolume(value); // Update volume
+                                      },
+                                      activeColor: Color(0xFF8648F3),
+                                      inactiveColor: Colors.grey,
+                                    ),
+                                  );
+                                }),
                               ],
                             ),
                           ],

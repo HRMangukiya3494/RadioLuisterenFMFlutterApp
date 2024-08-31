@@ -18,6 +18,7 @@ class HomeController extends GetxController {
   var isMuted = false.obs;
   var playbackPosition = 0.0.obs;
   var duration = 0.0.obs;
+  var volume = 1.0.obs; // Add a volume variable to track the volume level
 
   StreamSubscription? _positionSubscription;
   StreamSubscription? _durationSubscription;
@@ -91,13 +92,22 @@ class HomeController extends GetxController {
 
   void toggleMute() {
     if (isMuted.value) {
-      audioPlayer.setVolume(1.0);
+      audioPlayer.setVolume(volume.value); // Set volume back to the previous level
       isMuted(false);
     } else {
-      audioPlayer.setVolume(0.0);
+      audioPlayer.setVolume(0.0); // Set volume to 0
       isMuted(true);
     }
   }
+
+  void setVolume(double value) {
+    volume.value = value;
+    if (!isMuted.value) {
+      audioPlayer.setVolume(value);
+    }
+    log('Volume set to: $value'); // Log the volume value
+  }
+
 
   @override
   void dispose() {
