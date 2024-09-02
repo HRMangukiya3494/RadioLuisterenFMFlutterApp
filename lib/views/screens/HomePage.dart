@@ -1,4 +1,5 @@
 import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:radio_app/controller/HomeController.dart';
@@ -49,7 +50,16 @@ class HomePage extends StatelessWidget {
                       return Center(child: CircularProgressIndicator());
                     }
                     if (controller.stations.isEmpty) {
-                      return Center(child: Text('No stations available'));
+                      return Center(
+                        child: Text(
+                          'No Connection',
+                          style: TextStyle(
+                            color: Color(0xff0E364D),
+                            fontWeight: FontWeight.bold,
+                            fontSize: h * 0.024,
+                          ),
+                        ),
+                      );
                     }
                     return LayoutBuilder(
                       builder: (context, constraints) {
@@ -58,7 +68,7 @@ class HomePage extends StatelessWidget {
 
                         return GridView.builder(
                           gridDelegate:
-                          SliverGridDelegateWithFixedCrossAxisCount(
+                              SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 3,
                             childAspectRatio: itemWidth / itemHeight,
                             mainAxisSpacing: 8.0,
@@ -197,7 +207,8 @@ class HomePage extends StatelessWidget {
                                     child: Center(
                                       child: Obx(() {
                                         return Icon(
-                                          controller.volume.value == 0 || controller.isMuted.value
+                                          controller.volume.value == 0 ||
+                                                  controller.isMuted.value
                                               ? Icons.volume_off
                                               : Icons.volume_up,
                                           color: Colors.white,
@@ -208,14 +219,18 @@ class HomePage extends StatelessWidget {
                                 ),
                                 Obx(() {
                                   return Container(
-                                    width: h * 0.2, // Adjust width for responsiveness
-                                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                                    width: h * 0.2,
+                                    // Adjust width for responsiveness
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 8.0),
                                     child: Slider(
-                                      value: controller.volume.value, // Bind slider to volume
+                                      value: controller.volume.value,
+                                      // Bind slider to volume
                                       min: 0,
                                       max: 1,
                                       onChanged: (value) {
-                                        controller.setVolume(value); // Update volume
+                                        controller
+                                            .setVolume(value); // Update volume
                                       },
                                       activeColor: Color(0xFF8648F3),
                                       inactiveColor: Colors.grey,
