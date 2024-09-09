@@ -3,9 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:radio_app/views/routes/AppRoutes.dart';
 
+import 'controller/NotificationService.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  NotificationService notificationService = NotificationService();
+  await notificationService.init();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,

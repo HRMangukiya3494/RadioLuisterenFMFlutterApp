@@ -5,7 +5,7 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
-    <string>RadioLuisteren.fm</string>
+    <string>Radio Luisteren</string>
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>
     <key>CFBundleIdentifier</key>
@@ -46,6 +46,12 @@
     <key>UIApplicationSupportsIndirectInputEvents</key>
     <true/>
 
+    <key>UIBackgroundModes</key>
+    <array>
+      <string>audio</string>
+      <string>fetch</string>
+    </array>
+
     <!-- Network Security Configuration -->
     <key>NSAppTransportSecurity</key>
     <dict>
@@ -63,8 +69,14 @@
         </dict>
     </dict>
 
-    <!-- Add these lines for microphone usage description -->
+    <!-- Microphone Usage Description -->
     <key>NSMicrophoneUsageDescription</key>
     <string>We need access to your microphone to play the audio.</string>
+
+    <!-- Notification Usage Descriptions -->
+    <key>NSLocalNotificationUsageDescription</key>
+    <string>We need permission to send you notifications.</string>
+    <key>NSUserNotificationUsageDescription</key>
+    <string>We need permission to notify you about important updates.</string>
 </dict>
 </plist>

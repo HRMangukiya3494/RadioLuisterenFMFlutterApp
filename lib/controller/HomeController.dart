@@ -6,6 +6,9 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart' as xml;
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+import 'NotificationService.dart';
 
 class HomeController extends GetxController {
   var isLoading = true.obs;
@@ -46,6 +49,7 @@ class HomeController extends GetxController {
           if (isPlaying.value) {
             audioPlayer.pause();
             isPlaying(false);
+            NotificationService().cancelNotification();
           }
           break;
       }
@@ -102,15 +106,19 @@ class HomeController extends GetxController {
 
         firstPlay(true);
 
-        log('Playback started successfully for: $streamUrl');
+        // Show media notification for background playback
+        NotificationService().showNotification(currentStation['title'] ?? 'Radio Station', 'Now Playing', isPlaying.value);
 
+        log('Playback started successfully for: $streamUrl');
       } else {
         if (isPlaying.value) {
           await audioPlayer.pause();
           isPlaying(false);
+          NotificationService().showNotification(currentStation['title'] ?? 'Radio Station', 'Paused', false);
         } else {
           await audioPlayer.resume();
           isPlaying(true);
+          NotificationService().showNotification(currentStation['title'] ?? 'Radio Station', 'Now Playing', true);
         }
       }
     } catch (e) {
@@ -118,6 +126,24 @@ class HomeController extends GetxController {
       Get.snackbar('Playback Issue', 'Could not play the stream. Please try again later.',
           snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
     }
+  }
+
+  void pauseAudio() {
+    audioPlayer.pause();
+    isPlaying(false);
+    NotificationService().showNotification(currentStation['title'] ?? 'Radio Station', 'Paused', false);
+  }
+
+  void resumeAudio() {
+    audioPlayer.resume();
+    isPlaying(true);
+    NotificationService().showNotification(currentStation['title'] ?? 'Radio Station', 'Now Playing', true);
+  }
+
+  void stopAudio() {
+    audioPlayer.stop();
+    isPlaying(false);
+    NotificationService().cancelNotification();
   }
 
   void toggleMute() {
@@ -144,6 +170,10 @@ class HomeController extends GetxController {
     _positionSubscription?.cancel();
     _durationSubscription?.cancel();
     audioPlayer.dispose();
+
+    // Hide notification when the app is closed
+    NotificationService().cancelNotification();
+
     super.dispose();
   }
 }
