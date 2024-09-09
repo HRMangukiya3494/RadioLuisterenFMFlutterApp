@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart' as xml;
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class HomeController extends GetxController {
   var isLoading = true.obs;
@@ -18,15 +19,37 @@ class HomeController extends GetxController {
   var isMuted = false.obs;
   var playbackPosition = 0.0.obs;
   var duration = 0.0.obs;
-  var volume = 1.0.obs; // Add a volume variable to track the volume level
+  var volume = 1.0.obs;
 
   StreamSubscription? _positionSubscription;
   StreamSubscription? _durationSubscription;
+  StreamSubscription? _connectivitySubscription;
 
   @override
   void onInit() {
     fetchStations();
+    _checkInternetConnection();
     super.onInit();
+  }
+
+  void _checkInternetConnection() {
+    _connectivitySubscription = InternetConnectionChecker().onStatusChange.listen((status) async {
+      switch (status) {
+        case InternetConnectionStatus.connected:
+          log('Connected to the internet');
+          if (currentStreamUrl.value.isNotEmpty && !isPlaying.value) {
+            playPause(currentStreamUrl.value, currentIndex.value);
+          }
+          break;
+        case InternetConnectionStatus.disconnected:
+          log('No internet connection');
+          if (isPlaying.value) {
+            audioPlayer.pause();
+            isPlaying(false);
+          }
+          break;
+      }
+    });
   }
 
   void fetchStations() async {
@@ -59,6 +82,13 @@ class HomeController extends GetxController {
 
   void playPause(String streamUrl, int index) async {
     try {
+      bool hasConnection = await InternetConnectionChecker().hasConnection;
+      if (!hasConnection) {
+        Get.snackbar('No Internet Connection', 'Please check your internet connection.',
+            snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+        return;
+      }
+
       if (currentStreamUrl.value.isEmpty || currentStreamUrl.value != streamUrl) {
         await audioPlayer.stop();
         isPlaying(false);
@@ -105,12 +135,12 @@ class HomeController extends GetxController {
     if (!isMuted.value) {
       audioPlayer.setVolume(value);
     }
-    log('Volume set to: $value'); // Log the volume value
+    log('Volume set to: $value');
   }
-
 
   @override
   void dispose() {
+    _connectivitySubscription?.cancel();
     _positionSubscription?.cancel();
     _durationSubscription?.cancel();
     audioPlayer.dispose();
