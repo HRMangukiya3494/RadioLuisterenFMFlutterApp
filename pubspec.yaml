@@ -14,9 +14,9 @@ dependencies:
   http:
   audioplayers: ^6.1.0
   flutter_volume_controller: ^1.3.2
+  awesome_notifications: ^0.9.3+1
   cached_network_image:
   internet_connection_checker: ^2.0.0
-  flutter_local_notifications: ^17.2.2
   permission_handler:
   xml:
 

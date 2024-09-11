@@ -7,7 +7,7 @@ import 'controller/NotificationService.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  NotificationService notificationService = NotificationService();
+  AwesomeNotificationService notificationService = AwesomeNotificationService();
   await notificationService.init();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,

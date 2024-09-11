@@ -1,117 +1,101 @@
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'dart:developer';
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:radio_app/controller/HomeController.dart'; // Adjust import as per your file structure
+import 'package:permission_handler/permission_handler.dart';
+import 'package:radio_app/controller/HomeController.dart';
 
-class NotificationService {
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
-  // Initialize the notification system
+class AwesomeNotificationService {
   Future<void> init() async {
-    // Android initialization settings
-    const AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
+    try {
+      await AwesomeNotifications().initialize(
+        'resource://drawable/res_app_icon',
+        [
+          NotificationChannel(
+            channelKey: 'media_channel',
+            channelName: 'Media playback',
+            channelDescription: 'Notification channel for media playback',
+            defaultColor: Color(0xFF9D50DD),
+            ledColor: Colors.white,
+            playSound: false,
+            soundSource: 'resource://raw/res_notification',
+            importance: NotificationImportance.High,
+            channelShowBadge: true,
+            defaultRingtoneType: DefaultRingtoneType.Notification,
+          )
+        ],
+      );
+      log('Awesome Notifications initialized successfully.');
+      await requestNotificationPermission();
+      await AwesomeNotifications().requestPermissionToSendNotifications();
+      initializeNotificationListeners();
+    } catch (e) {
+      log('Error initializing Awesome Notifications: $e');
+    }
+  }
 
-    // iOS initialization settings
-    final DarwinInitializationSettings initializationSettingsIOS =
-    DarwinInitializationSettings(
-      onDidReceiveLocalNotification: (int id, String? title, String? body, String? payload) async {
-        // Handle the case when a notification is received while the app is in the foreground
-        Get.snackbar(title ?? 'Notification', body ?? '');
-      },
-    );
-
-    // Combined initialization settings for Android and iOS
-    final InitializationSettings initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsIOS,
-    );
-
-    // Initialize notification plugin with a callback for when a notification is tapped
-    await flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-      onDidReceiveNotificationResponse: (NotificationResponse response) {
-        if (response.payload == 'pause') {
-          Get.find<HomeController>().pauseAudio();
-        } else if (response.payload == 'play') {
-          Get.find<HomeController>().resumeAudio();
-        } else if (response.payload == 'stop') {
-          Get.find<HomeController>().stopAudio();
-        }
-      },
-    );
-
-    // Request notification permission for Android 13+ (API level 33+)
-    await requestNotificationPermission();
-
-    // Request notification permission for iOS
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(
-      alert: true,
-      badge: true,
-      sound: true,
+  void initializeNotificationListeners() {
+    AwesomeNotifications().setListeners(
+      onActionReceivedMethod: onActionReceivedMethod,
     );
   }
 
-  // Request notification permission (needed for Android 13+)
+  static Future<void> onActionReceivedMethod(
+      ReceivedAction receivedAction) async {
+    log('Received action: ${receivedAction.toMap()}');
+
+    if (receivedAction.actionType == ActionType.SilentAction ||
+        receivedAction.actionType == ActionType.SilentBackgroundAction) {
+      log('Silent action received: "${receivedAction.buttonKeyInput}"');
+    } else {
+      String action = receivedAction.buttonKeyPressed;
+      log('Button pressed: $action');
+
+      if (action == 'play') {
+        Get.find<HomeController>().resumeAudio();
+      } else if (action == 'pause') {
+        Get.find<HomeController>().pauseAudio();
+      } else {
+        log('Unknown action received: $action');
+      }
+    }
+  }
+
   Future<void> requestNotificationPermission() async {
     if (await Permission.notification.isDenied) {
       await Permission.notification.request();
     }
   }
 
-  // Show a notification with play, pause, and stop actions
-  Future<void> showNotification(String title, String body, bool isPlaying) async {
-    // Android-specific notification details
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-    AndroidNotificationDetails(
-      'your_channel_id', // Channel ID
-      'Media Playback', // Channel Name
-      importance: Importance.max,
-      priority: Priority.high,
-      showWhen: false,
-      playSound: false,
-      styleInformation: MediaStyleInformation(
-        htmlFormatContent: true,
-        htmlFormatTitle: true,
-      ),
-      actions: [
-        AndroidNotificationAction('pause', 'Pause'),
-        AndroidNotificationAction('play', 'Play'),
-        AndroidNotificationAction('stop', 'Stop'),
-      ],
-    );
-
-    // iOS-specific notification details
-    const DarwinNotificationDetails iosNotificationDetails = DarwinNotificationDetails(
-      presentAlert: true,   // Show alert
-      presentBadge: true,   // Update badge
-      presentSound: true,   // Play sound
-    );
-
-    const NotificationDetails platformChannelSpecifics = NotificationDetails(
-      android: androidPlatformChannelSpecifics,
-      iOS: iosNotificationDetails,
-    );
-
-    if (isPlaying) {
-      // Show notification when playing
-      await flutterLocalNotificationsPlugin.show(
-        0, // Notification ID
-        title,
-        body,
-        platformChannelSpecifics,
-        payload: 'pause',
+  Future<void> showNotification(
+      String title, String body, bool isPlaying) async {
+    try {
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: 10,
+          channelKey: 'media_channel',
+          title: "RadioLuisteren.fm",
+          body: title,
+          notificationLayout: NotificationLayout.BigPicture,
+          icon: 'resource://drawable/ic_notification',
+          payload: {'action': isPlaying ? 'pause' : 'play'},
+        ),
+        actionButtons: [
+          NotificationActionButton(
+            key: isPlaying ? 'pause' : 'play',
+            label: isPlaying ? 'Pause' : 'Play',
+            showInCompactView: true,
+            color: isPlaying ? Colors.red : Colors.green,
+            actionType: ActionType.Default,
+          ),
+        ],
       );
-    } else {
-      // Cancel notification when paused
-      await flutterLocalNotificationsPlugin.cancel(0); // Clear the notification when paused
+    } catch (e) {
+      log('Error showing notification: $e');
     }
   }
 
-  // Cancel all notifications
   Future<void> cancelNotification() async {
-    await flutterLocalNotificationsPlugin.cancelAll();
+    await AwesomeNotifications().cancelAll();
   }
 }

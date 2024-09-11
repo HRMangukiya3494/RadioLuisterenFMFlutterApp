@@ -50,6 +50,7 @@
     <array>
       <string>audio</string>
       <string>fetch</string>
+      <string>remote-notification</string> <!-- Added for remote notifications -->
     </array>
 
     <!-- Network Security Configuration -->
@@ -78,5 +79,16 @@
     <string>We need permission to send you notifications.</string>
     <key>NSUserNotificationUsageDescription</key>
     <string>We need permission to notify you about important updates.</string>
+
+    <!-- Add these to specify the app's support for notifications -->
+    <key>UIUserNotificationSettings</key>
+    <dict>
+        <key>UIUserNotificationTypeAlert</key>
+        <true/>
+        <key>UIUserNotificationTypeBadge</key>
+        <true/>
+        <key>UIUserNotificationTypeSound</key>
+        <true/>
+    </dict>
 </dict>
 </plist>

@@ -1,14 +1,13 @@
 import 'dart:async';
 import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:http/http.dart' as http;
+import 'package:radio_app/controller/NotificationService.dart';
 import 'package:xml/xml.dart' as xml;
 import 'package:internet_connection_checker/internet_connection_checker.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
-import 'NotificationService.dart';
 
 class HomeController extends GetxController {
   var isLoading = true.obs;
@@ -32,6 +31,7 @@ class HomeController extends GetxController {
   void onInit() {
     fetchStations();
     _checkInternetConnection();
+    AwesomeNotificationService().init();
     super.onInit();
   }
 
@@ -49,7 +49,7 @@ class HomeController extends GetxController {
           if (isPlaying.value) {
             audioPlayer.pause();
             isPlaying(false);
-            NotificationService().cancelNotification();
+            AwesomeNotificationService().cancelNotification();
           }
           break;
       }
@@ -106,19 +106,17 @@ class HomeController extends GetxController {
 
         firstPlay(true);
 
-        // Show media notification for background playback
-        NotificationService().showNotification(currentStation['title'] ?? 'Radio Station', 'Now Playing', isPlaying.value);
-
+        AwesomeNotificationService().showNotification(currentStation['title'] ?? 'Radio Station', 'Now Playing', isPlaying.value);
         log('Playback started successfully for: $streamUrl');
       } else {
         if (isPlaying.value) {
           await audioPlayer.pause();
           isPlaying(false);
-          NotificationService().showNotification(currentStation['title'] ?? 'Radio Station', 'Paused', false);
+          AwesomeNotificationService().showNotification(currentStation['title'] ?? 'Radio Station', 'Paused', false);
         } else {
           await audioPlayer.resume();
           isPlaying(true);
-          NotificationService().showNotification(currentStation['title'] ?? 'Radio Station', 'Now Playing', true);
+          AwesomeNotificationService().showNotification(currentStation['title'] ?? 'Radio Station', 'Now Playing', true);
         }
       }
     } catch (e) {
@@ -128,22 +126,23 @@ class HomeController extends GetxController {
     }
   }
 
+
   void pauseAudio() {
     audioPlayer.pause();
     isPlaying(false);
-    NotificationService().showNotification(currentStation['title'] ?? 'Radio Station', 'Paused', false);
+    AwesomeNotificationService().showNotification(currentStation['title'] ?? 'Radio Station', 'Paused', false);
   }
 
   void resumeAudio() {
     audioPlayer.resume();
     isPlaying(true);
-    NotificationService().showNotification(currentStation['title'] ?? 'Radio Station', 'Now Playing', true);
+    AwesomeNotificationService().showNotification(currentStation['title'] ?? 'Radio Station', 'Now Playing', true);
   }
 
   void stopAudio() {
     audioPlayer.stop();
     isPlaying(false);
-    NotificationService().cancelNotification();
+    AwesomeNotificationService().cancelNotification();
   }
 
   void toggleMute() {
@@ -172,7 +171,7 @@ class HomeController extends GetxController {
     audioPlayer.dispose();
 
     // Hide notification when the app is closed
-    NotificationService().cancelNotification();
+    AwesomeNotificationService().cancelNotification();
 
     super.dispose();
   }
