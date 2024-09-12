@@ -122,7 +122,6 @@ class HomePage extends StatelessWidget {
                         padding: EdgeInsets.all(h * 0.01),
                         child: Row(
                           children: [
-                            // Container for the image and title
                             if (controller.currentStation['image'] != null)
                               Container(
                                 height: h * 0.06,
@@ -137,20 +136,6 @@ class HomePage extends StatelessWidget {
                                       controller.currentStation['image']!,
                                     ),
                                     fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                            if (controller.currentStation['title'] != null)
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0),
-                                  child: Text(
-                                    controller.currentStation['title']!,
-                                    style: TextStyle(
-                                      fontSize: 16.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
                                   ),
                                 ),
                               ),
@@ -220,17 +205,15 @@ class HomePage extends StatelessWidget {
                                 Obx(() {
                                   return Container(
                                     width: h * 0.2,
-                                    // Adjust width for responsiveness
                                     padding:
                                         EdgeInsets.symmetric(horizontal: 8.0),
                                     child: Slider(
                                       value: controller.volume.value,
-                                      // Bind slider to volume
                                       min: 0,
                                       max: 1,
                                       onChanged: (value) {
                                         controller
-                                            .setVolume(value); // Update volume
+                                            .setVolume(value);
                                       },
                                       activeColor: Color(0xFF8648F3),
                                       inactiveColor: Colors.grey,
