@@ -106,17 +106,17 @@ class HomeController extends GetxController {
 
         firstPlay(true);
 
-        AwesomeNotificationService().showNotification(currentStation['title'] ?? 'Radio Station', 'Now Playing', isPlaying.value);
+        AwesomeNotificationService().showNotification(currentStation['title'] ?? 'Radio Station',  isPlaying.value);
         log('Playback started successfully for: $streamUrl');
       } else {
         if (isPlaying.value) {
           await audioPlayer.pause();
           isPlaying(false);
-          AwesomeNotificationService().showNotification(currentStation['title'] ?? 'Radio Station', 'Paused', false);
+          AwesomeNotificationService().showNotification(currentStation['title'] ?? 'Radio Station',  false);
         } else {
           await audioPlayer.resume();
           isPlaying(true);
-          AwesomeNotificationService().showNotification(currentStation['title'] ?? 'Radio Station', 'Now Playing', true);
+          AwesomeNotificationService().showNotification(currentStation['title'] ?? 'Radio Station',  true);
         }
       }
     } catch (e) {
@@ -130,14 +130,19 @@ class HomeController extends GetxController {
   void pauseAudio() {
     audioPlayer.pause();
     isPlaying(false);
-    AwesomeNotificationService().showNotification(currentStation['title'] ?? 'Radio Station', 'Paused', false);
+    AwesomeNotificationService().showNotification(
+        currentStation['title'] ?? 'Radio Station', false
+    );
   }
 
   void resumeAudio() {
     audioPlayer.resume();
     isPlaying(true);
-    AwesomeNotificationService().showNotification(currentStation['title'] ?? 'Radio Station', 'Now Playing', true);
+    AwesomeNotificationService().showNotification(
+        currentStation['title'] ?? 'Radio Station', true
+    );
   }
+
 
   void stopAudio() {
     audioPlayer.stop();
@@ -170,7 +175,6 @@ class HomeController extends GetxController {
     _durationSubscription?.cancel();
     audioPlayer.dispose();
 
-    // Hide notification when the app is closed
     AwesomeNotificationService().cancelNotification();
 
     super.dispose();

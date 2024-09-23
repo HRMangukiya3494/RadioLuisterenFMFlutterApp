@@ -19,7 +19,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.radioluisteren.radio"
+        applicationId = "com.radio.luisteren"
         targetSdk = flutter.targetSdkVersion
         minSdkVersion 21
         versionCode 1
