@@ -106,17 +106,17 @@ class HomeController extends GetxController {
 
         firstPlay(true);
 
-        AwesomeNotificationService().showNotification(currentStation['title'] ?? 'Radio Station',  isPlaying.value);
+        AwesomeNotificationService().showOrUpdateNotification(currentStation['title'] ?? 'Radio Station', isPlaying.value);
         log('Playback started successfully for: $streamUrl');
       } else {
         if (isPlaying.value) {
           await audioPlayer.pause();
           isPlaying(false);
-          AwesomeNotificationService().showNotification(currentStation['title'] ?? 'Radio Station',  false);
+          AwesomeNotificationService().showOrUpdateNotification(currentStation['title'] ?? 'Radio Station', false);
         } else {
           await audioPlayer.resume();
           isPlaying(true);
-          AwesomeNotificationService().showNotification(currentStation['title'] ?? 'Radio Station',  true);
+          AwesomeNotificationService().showOrUpdateNotification(currentStation['title'] ?? 'Radio Station', true);
         }
       }
     } catch (e) {
@@ -126,11 +126,36 @@ class HomeController extends GetxController {
     }
   }
 
+  void previousStation() {
+    if (currentIndex.value > 0) {
+      currentIndex.value--;
+      playPause(stations[currentIndex.value]['streaming_url']!, currentIndex.value);
+    } else {
+      Get.snackbar('Info', 'This is the first station.',
+          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.orange, colorText: Colors.white);
+    }
+  }
+
+  void nextStation() {
+    if (currentIndex.value < stations.length - 1) {
+      currentIndex.value++;
+      playPause(stations[currentIndex.value]['streaming_url']!, currentIndex.value);
+    } else {
+      Get.snackbar('Info', 'This is the last station.',
+          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.orange, colorText: Colors.white);
+    }
+  }
+
+  void closeAudio() {
+    audioPlayer.stop();
+    isPlaying(false);
+    AwesomeNotificationService().cancelNotification();
+  }
 
   void pauseAudio() {
     audioPlayer.pause();
     isPlaying(false);
-    AwesomeNotificationService().showNotification(
+    AwesomeNotificationService().showOrUpdateNotification(
         currentStation['title'] ?? 'Radio Station', false
     );
   }
@@ -138,24 +163,17 @@ class HomeController extends GetxController {
   void resumeAudio() {
     audioPlayer.resume();
     isPlaying(true);
-    AwesomeNotificationService().showNotification(
+    AwesomeNotificationService().showOrUpdateNotification(
         currentStation['title'] ?? 'Radio Station', true
     );
   }
 
-
-  void stopAudio() {
-    audioPlayer.stop();
-    isPlaying(false);
-    AwesomeNotificationService().cancelNotification();
-  }
-
   void toggleMute() {
     if (isMuted.value) {
-      audioPlayer.setVolume(volume.value); // Set volume back to the previous level
+      audioPlayer.setVolume(volume.value);
       isMuted(false);
     } else {
-      audioPlayer.setVolume(0.0); // Set volume to 0
+      audioPlayer.setVolume(0.0);
       isMuted(true);
     }
   }
