@@ -99,9 +99,9 @@ class AwesomeNotificationService {
 
       await AwesomeNotifications().createNotification(
         content: NotificationContent(
-          id: 10,  // Ensure the same ID is used for updates
+          id: 10,
           channelKey: 'media_channel',
-          title: 'radioluisteren.fm',
+          title: 'Radio Luisteren',
           body: subtitle,
           notificationLayout: NotificationLayout.MediaPlayer,
           icon: 'resource://drawable/ic_launcher',
@@ -158,7 +158,6 @@ class AwesomeNotificationService {
       case 'next':
         log('Next button pressed');
         homeController.nextStation();
-        // Update notification to reflect the next station without canceling it
         AwesomeNotificationService().showOrUpdateNotification('Next station', true);
         break;
       case 'close':
